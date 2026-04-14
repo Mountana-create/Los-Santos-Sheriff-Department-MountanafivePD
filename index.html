@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Authentification — Mountana FivePD · LSSD</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Barlow+Condensed:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════════════════════════
+   MOUNTANA FIVEPD — LSSD AUTH PORTAL
+   Design: Tactical / Sheriff · Dark by default
+   ═══════════════════════════════════════════════ */
+
+:root {
+  --bg:        #08090c;
+  --bg2:       #0e1117;
+  --bg3:       #141820;
+  --bg4:       #1c2230;
+  --border:    rgba(180,140,60,0.18);
+  --border2:   rgba(180,140,60,0.35);
+  --gold:      #c9a84c;
+  --gold2:     #e8c96a;
+  --gold-dim:  #7a6030;
+  --blue:      #1a3a6b;
+  --blue2:     #2a5fa8;
+  --blue-led:  #3d8ef0;
+  --white:     #edf0f7;
+  --muted:     #5a6478;
+  --muted2:    #8a94a8;
+  --red:       #e53e3e;
+  --green:     #22c55e;
+  --purple:    #8b5cf6;
+  --shadow:    0 25px 60px rgba(0,0,0,0.8);
+  --glass:     rgba(14,17,23,0.75);
+  --radius:    12px;
+  --font-h:    'Rajdhani', sans-serif;
+  --font-b:    'Barlow Condensed', sans-serif;
+  --font-m:    'JetBrains Mono', monospace;
+  --transition: 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+[data-theme="light"] {
+  --bg:        #f0f2f8;
+  --bg2:       #e4e8f2;
+  --bg3:       #d8dded;
+  --bg4:       #c8cedf;
+  --border:    rgba(100,80,20,0.2);
+  --border2:   rgba(100,80,20,0.4);
+  --white:     #1a2035;
+  --muted:     #6b7280;
+  --muted2:    #4b5563;
+  --glass:     rgba(230,235,248,0.82);
+  --shadow:    0 25px 60px rgba(0,0,0,0.2);
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--white);
+  font-family:var(--font-b);
+  min-height:100vh;
+  overflow-x:hidden;
+  position:relative;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--gold-dim);border-radius:3px}
+
+/* ── WATERMARK BACKGROUND ── */
+.watermark{
+  position:fixed;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  pointer-events:none;z-index:0;
+  opacity:0.04;
+}
+.watermark svg{width:min(70vw,600px);height:auto}
+
+/* ── SCAN LINES ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.04) 2px,rgba(0,0,0,0.04) 4px);
+  pointer-events:none;z-index:1;
+}
+
+/* ── HEADER ── */
+.header{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:68px;
+  background:rgba(8,9,12,0.92);
+  border-bottom:1px solid var(--border);
+  backdrop-filter:blur(20px);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 2rem;
+}
+[data-theme="light"] .header{background:rgba(240,242,248,0.92)}
+
+.header-brand{display:flex;align-items:center;gap:1rem}
+.header-logo{width:44px;height:44px;flex-shrink:0}
+
+.brand-texts{}
+.brand-top{
+  font-family:var(--font-h);
+  font-size:0.72rem;font-weight:700;letter-spacing:0.18em;
+  color:var(--purple);text-transform:uppercase;line-height:1;
+}
+.brand-main{
+  font-family:var(--font-h);
+  font-size:1.05rem;font-weight:700;letter-spacing:0.06em;
+  color:var(--gold);text-transform:uppercase;line-height:1.2;
+}
+.brand-sub{
+  font-size:0.62rem;letter-spacing:0.12em;color:var(--muted);
+  text-transform:uppercase;
+}
+
+.header-right{display:flex;align-items:center;gap:1rem}
+
+.status-dot{
+  display:flex;align-items:center;gap:0.4rem;
+  font-size:0.7rem;letter-spacing:0.1em;color:var(--muted2);
+  font-family:var(--font-m);
+}
+.dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 6px var(--green);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+/* ── THEME TOGGLE ── */
+.theme-toggle{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:20px;padding:0.3rem 0.7rem;
+  cursor:pointer;font-size:0.8rem;color:var(--muted2);
+  display:flex;align-items:center;gap:0.4rem;
+  transition:var(--transition);font-family:var(--font-b);font-weight:500;
+}
+.theme-toggle:hover{border-color:var(--border2);color:var(--gold)}
+
+/* ── MAIN WRAPPER ── */
+.main{
+  position:relative;z-index:2;
+  min-height:100vh;
+  padding:100px 1rem 6rem;
+  display:flex;flex-direction:column;align-items:center;
+}
+
+/* ── VIEW SYSTEM ── */
+.view{display:none}
+.view.active{display:block;animation:fadeUp 0.4s ease both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── AUTH CARD ── */
+.auth-wrap{
+  width:100%;max-width:480px;
+  margin:0 auto;
+}
+
+.auth-eyebrow{
+  text-align:center;margin-bottom:2rem;
+}
+.auth-eyebrow .seal{
+  display:inline-flex;align-items:center;justify-content:center;
+  width:90px;height:90px;margin-bottom:1rem;
+  filter:drop-shadow(0 0 20px rgba(201,168,76,0.3));
+}
+.auth-eyebrow h1{
+  font-family:var(--font-h);font-size:2rem;font-weight:700;
+  color:var(--white);letter-spacing:0.04em;text-transform:uppercase;
+  line-height:1;
+}
+.auth-eyebrow .sub{
+  font-size:0.72rem;letter-spacing:0.15em;color:var(--muted);
+  text-transform:uppercase;margin-top:0.3rem;
+}
+
+.glass-card{
+  background:var(--glass);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:2rem;
+  backdrop-filter:blur(24px) saturate(1.2);
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,0.04);
+  position:relative;overflow:hidden;
+}
+.glass-card::before{
+  content:'';
+  position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(201,168,76,0.4),transparent);
+}
+
+/* Corner accents */
+.glass-card::after{
+  content:'';
+  position:absolute;top:0;right:0;
+  width:60px;height:60px;
+  border-top:1px solid var(--border2);
+  border-right:1px solid var(--border2);
+  border-radius:0 var(--radius) 0 0;
+}
+.corner-bl{
+  position:absolute;bottom:0;left:0;
+  width:60px;height:60px;
+  border-bottom:1px solid var(--border2);
+  border-left:1px solid var(--border2);
+  border-radius:0 0 0 var(--radius);
+}
+
+/* ── FORM ── */
+.form-section-title{
+  font-family:var(--font-h);font-size:0.68rem;
+  font-weight:700;letter-spacing:0.18em;
+  color:var(--gold);text-transform:uppercase;
+  margin-bottom:1rem;padding-bottom:0.4rem;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:0.5rem;
+}
+.form-section-title::before{
+  content:'';display:block;
+  width:4px;height:12px;border-radius:2px;
+  background:var(--gold);flex-shrink:0;
+}
+
+.form-group{display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem}
+
+.form-label{
+  font-size:0.68rem;font-weight:600;letter-spacing:0.14em;
+  color:var(--muted2);text-transform:uppercase;
+}
+
+.form-input, .form-select{
+  background:rgba(8,9,12,0.6);
+  border:1px solid var(--border);
+  border-radius:7px;
+  color:var(--white);
+  font-family:var(--font-b);font-size:0.95rem;font-weight:500;
+  padding:0.65rem 1rem;
+  outline:none;
+  transition:var(--transition);
+  -webkit-appearance:none;
+}
+.form-input:focus,.form-select:focus{
+  border-color:var(--gold);
+  box-shadow:0 0 0 3px rgba(201,168,76,0.12);
+  background:rgba(8,9,12,0.8);
+}
+.form-input::placeholder{color:var(--muted)}
+.form-select option{background:#0e1117;color:var(--white)}
+[data-theme="light"] .form-input,[data-theme="light"] .form-select{
+  background:rgba(255,255,255,0.6);
+}
+[data-theme="light"] .form-select option{background:#e4e8f2}
+
+.input-icon-wrap{position:relative}
+.input-icon-wrap .form-input{padding-left:2.5rem}
+.input-icon{
+  position:absolute;left:0.9rem;top:50%;transform:translateY(-50%);
+  color:var(--muted);font-size:0.9rem;pointer-events:none;
+}
+
+.select-wrap{position:relative}
+.select-wrap::after{
+  content:'▾';
+  position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);
+  color:var(--gold);pointer-events:none;font-size:0.9rem;
+}
+
+.pass-wrap{position:relative}
+.pass-toggle{
+  position:absolute;right:0.9rem;top:50%;transform:translateY(-50%);
+  background:none;border:none;color:var(--muted);cursor:pointer;
+  font-size:0.85rem;padding:0;
+  transition:var(--transition);
+}
+.pass-toggle:hover{color:var(--gold)}
+
+/* ── BUTTONS ── */
+.btn-primary{
+  width:100%;
+  background:linear-gradient(135deg,var(--gold),var(--gold-dim));
+  color:#0a0a0a;
+  font-family:var(--font-h);font-size:1rem;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;
+  padding:0.85rem;border-radius:8px;border:none;cursor:pointer;
+  position:relative;overflow:hidden;
+  transition:var(--transition);
+}
+.btn-primary::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+  opacity:0;transition:var(--transition);
+}
+.btn-primary:hover::after{opacity:1}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 8px 25px rgba(201,168,76,0.35)}
+.btn-primary:active{transform:translateY(0)}
+
+.btn-discord{
+  width:100%;margin-top:0.75rem;
+  background:rgba(88,101,242,0.15);
+  border:1px solid rgba(88,101,242,0.35);
+  color:#a8b0ff;
+  font-family:var(--font-h);font-size:0.9rem;font-weight:600;
+  letter-spacing:0.08em;text-transform:uppercase;
+  padding:0.7rem;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:0.5rem;
+  text-decoration:none;transition:var(--transition);
+}
+.btn-discord:hover{background:rgba(88,101,242,0.25);border-color:rgba(88,101,242,0.6)}
+
+.btn-secondary{
+  background:var(--bg3);border:1px solid var(--border);
+  color:var(--muted2);font-family:var(--font-h);
+  font-size:0.85rem;font-weight:600;letter-spacing:0.08em;
+  padding:0.5rem 1.2rem;border-radius:6px;cursor:pointer;
+  transition:var(--transition);text-transform:uppercase;
+}
+.btn-secondary:hover{border-color:var(--border2);color:var(--gold)}
+
+.btn-danger{
+  background:rgba(229,62,62,0.12);border:1px solid rgba(229,62,62,0.3);
+  color:var(--red);font-family:var(--font-h);
+  font-size:0.8rem;font-weight:600;letter-spacing:0.08em;
+  padding:0.4rem 1rem;border-radius:6px;cursor:pointer;
+  transition:var(--transition);text-transform:uppercase;
+}
+.btn-danger:hover{background:rgba(229,62,62,0.2)}
+
+/* ── ALERT ── */
+.alert{
+  border-radius:8px;padding:0.9rem 1.1rem;
+  font-family:var(--font-m);font-size:0.78rem;
+  margin-bottom:1rem;display:none;
+  animation:fadeUp 0.3s ease;
+  border-left:3px solid;
+}
+.alert.show{display:flex;align-items:flex-start;gap:0.5rem}
+.alert-error{background:rgba(229,62,62,0.1);border-color:var(--red);color:#fca5a5}
+.alert-success{background:rgba(34,197,94,0.1);border-color:var(--green);color:#86efac}
+.alert-info{background:rgba(61,142,240,0.1);border-color:var(--blue-led);color:#93c5fd}
+.alert-icon{font-size:1rem;flex-shrink:0;margin-top:1px}
+.alert-content{}
+.alert-title{font-weight:700;letter-spacing:0.05em;margin-bottom:0.1rem}
+.alert-sub{opacity:0.8;font-size:0.72rem}
+
+/* ── DIVIDER ── */
+.divider{
+  display:flex;align-items:center;gap:0.8rem;
+  margin:1rem 0;color:var(--muted);font-size:0.72rem;
+  letter-spacing:0.1em;text-transform:uppercase;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ── DASHBOARD ── */
+.dashboard{max-width:1100px;margin:0 auto;width:100%}
+
+.dash-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:1rem;
+  margin-bottom:2rem;
+  padding-bottom:1.5rem;
+  border-bottom:1px solid var(--border);
+}
+
+.dash-welcome{}
+.dash-welcome-tag{
+  font-size:0.68rem;letter-spacing:0.18em;color:var(--gold);
+  text-transform:uppercase;font-weight:700;margin-bottom:0.2rem;
+}
+.dash-welcome-name{
+  font-family:var(--font-h);font-size:2rem;font-weight:700;
+  color:var(--white);line-height:1;
+}
+.dash-welcome-info{font-size:0.8rem;color:var(--muted2);margin-top:0.2rem}
+
+.dash-actions{display:flex;gap:0.5rem;flex-wrap:wrap}
+
+/* ── BADGE ── */
+.badge{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  font-family:var(--font-h);font-size:0.68rem;font-weight:700;
+  letter-spacing:0.1em;text-transform:uppercase;
+  padding:0.25rem 0.7rem;border-radius:4px;
+}
+.badge-gold{background:rgba(201,168,76,0.15);color:var(--gold);border:1px solid rgba(201,168,76,0.3)}
+.badge-blue{background:rgba(61,142,240,0.12);color:#93c5fd;border:1px solid rgba(61,142,240,0.3)}
+.badge-green{background:rgba(34,197,94,0.12);color:var(--green);border:1px solid rgba(34,197,94,0.3)}
+.badge-red{background:rgba(229,62,62,0.12);color:var(--red);border:1px solid rgba(229,62,62,0.3)}
+.badge-purple{background:rgba(139,92,246,0.12);color:var(--purple);border:1px solid rgba(139,92,246,0.3)}
+.badge-muted{background:rgba(90,100,120,0.15);color:var(--muted2);border:1px solid rgba(90,100,120,0.2)}
+
+/* ── STAT CARDS ── */
+.stat-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:1rem;margin-bottom:1.5rem;
+}
+
+.stat-card{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.25rem 1.5rem;
+  position:relative;overflow:hidden;
+  transition:var(--transition);
+}
+.stat-card:hover{border-color:var(--border2)}
+.stat-card::before{
+  content:'';
+  position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--gold);
+}
+.stat-card-label{font-size:0.68rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:0.4rem}
+.stat-card-value{font-family:var(--font-h);font-size:1.8rem;font-weight:700;color:var(--gold);line-height:1}
+.stat-card-sub{font-size:0.72rem;color:var(--muted2);margin-top:0.2rem}
+
+/* ── PANEL ── */
+.panel{
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:1.5rem;
+  margin-bottom:1.5rem;
+}
+
+.panel-header{
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:0.5rem;
+  margin-bottom:1.25rem;
+  padding-bottom:0.75rem;
+  border-bottom:1px solid var(--border);
+}
+
+.panel-title{
+  font-family:var(--font-h);font-size:0.85rem;font-weight:700;
+  letter-spacing:0.12em;color:var(--gold);text-transform:uppercase;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.panel-title::before{
+  content:'';display:block;
+  width:3px;height:14px;border-radius:2px;
+  background:var(--gold);
+}
+
+/* ── PPAP FORM ── */
+.ppap-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:600px){.ppap-grid{grid-template-columns:1fr}}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto}
+
+.data-table{
+  width:100%;border-collapse:collapse;
+  font-size:0.85rem;
+}
+.data-table th{
+  background:var(--bg3);
+  color:var(--muted);
+  font-family:var(--font-h);font-size:0.65rem;
+  letter-spacing:0.15em;text-transform:uppercase;
+  padding:0.75rem 1rem;text-align:left;
+  border-bottom:1px solid var(--border);white-space:nowrap;
+}
+.data-table td{
+  padding:0.75rem 1rem;
+  border-bottom:1px solid rgba(42,48,64,0.4);
+  vertical-align:middle;font-family:var(--font-b);
+}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:rgba(201,168,76,0.03)}
+.data-table .row-fail td{background:rgba(229,62,62,0.04)}
+
+.mono{font-family:var(--font-m);font-size:0.8rem;color:var(--gold)}
+
+/* ── CREDS DISPLAY ── */
+.creds-table{
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:8px;overflow:hidden;
+}
+.cred-row{
+  display:grid;grid-template-columns:1fr 1.2fr 1fr;
+  padding:0.6rem 1rem;border-bottom:1px solid var(--border);
+  font-size:0.82rem;
+}
+.cred-row:last-child{border-bottom:none}
+.cred-row.header{
+  background:var(--bg4);
+  font-family:var(--font-h);font-size:0.65rem;
+  letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--muted);padding:0.5rem 1rem;
+}
+.cred-pass{font-family:var(--font-m);font-size:0.75rem;color:var(--blue-led)}
+
+/* ── SEARCH ── */
+.search-bar{
+  display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;
+}
+.search-input{
+  flex:1;min-width:200px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:7px;color:var(--white);
+  font-family:var(--font-b);font-size:0.9rem;
+  padding:0.5rem 0.9rem;outline:none;transition:var(--transition);
+}
+.search-input:focus{border-color:var(--border2)}
+.search-input::placeholder{color:var(--muted)}
+
+/* ── NAV TABS ── */
+.dash-tabs{
+  display:flex;gap:0.25rem;flex-wrap:wrap;
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:0.4rem;
+  margin-bottom:1.5rem;
+}
+.dash-tab{
+  flex:1;min-width:100px;
+  background:none;border:none;
+  color:var(--muted2);font-family:var(--font-h);
+  font-size:0.8rem;font-weight:600;letter-spacing:0.08em;
+  text-transform:uppercase;padding:0.55rem 1rem;
+  border-radius:7px;cursor:pointer;transition:var(--transition);
+}
+.dash-tab.active{background:var(--bg4);color:var(--gold);border:1px solid var(--border)}
+.dash-tab:hover:not(.active){color:var(--white)}
+
+/* ── FOOTER ── */
+.footer{
+  position:relative;z-index:2;
+  background:rgba(8,9,12,0.95);
+  border-top:1px solid var(--border);
+  padding:1.5rem 2rem;
+  text-align:center;
+}
+.footer-brand{
+  font-family:var(--font-h);font-size:0.72rem;
+  letter-spacing:0.18em;color:var(--purple);
+  text-transform:uppercase;margin-bottom:0.4rem;
+}
+.footer-legal{color:var(--muted);font-size:0.72rem;line-height:1.8;letter-spacing:0.02em}
+.footer-legal strong{color:var(--muted2)}
+
+/* ── MEDIA ── */
+@media(max-width:768px){
+  .header{padding:0 1rem}
+  .brand-main{font-size:0.85rem}
+  .main{padding:90px 0.75rem 4rem}
+  .glass-card{padding:1.5rem 1.25rem}
+}
+
+/* ── LOADING OVERLAY ── */
+.loading-overlay{
+  position:fixed;inset:0;z-index:999;
+  background:var(--bg);
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:1rem;
+  transition:opacity 0.5s ease;
+}
+.loading-overlay.hide{opacity:0;pointer-events:none}
+.loading-spinner{
+  width:48px;height:48px;
+  border:2px solid var(--border);
+  border-top-color:var(--gold);
+  border-radius:50%;
+  animation:spin 0.8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-text{
+  font-family:var(--font-m);font-size:0.75rem;
+  color:var(--muted);letter-spacing:0.1em;
+}
+
+/* ── ACCESS DENIED ANIM ── */
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-5px)}
+  80%{transform:translateX(5px)}
+}
+.shake{animation:shake 0.5s ease}
+</style>
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loader">
+  <svg width="60" height="60" viewBox="0 0 100 100">
+    <g transform="translate(50,50)">
+      <polygon points="0,-38 6,-14 24,-28 14,-7 36,0 16,10 23,33 0,20 -23,33 -16,10 -36,0 -14,-7 -24,-28 -6,-14" fill="none" stroke="#c9a84c" stroke-width="1.5" opacity="0.5"/>
+      <polygon points="0,-28 4,-10 18,-20 10,-5 26,0 12,7 17,24 0,14 -17,24 -12,7 -26,0 -10,-5 -18,-20 -4,-10" fill="#c9a84c" opacity="0.2"/>
+      <text y="5" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani,sans-serif" font-size="10" font-weight="700" letter-spacing="1">LSSD</text>
+    </g>
+  </svg>
+  <div class="loading-spinner"></div>
+  <div class="loading-text">INITIALISATION DU SYSTÈME...</div>
+</div>
+
+<!-- WATERMARK -->
+<div class="watermark">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <g transform="translate(100,100)">
+      <polygon points="0,-90 13,-32 56,-65 32,-15 84,0 37,23 54,78 0,47 -54,78 -37,23 -84,0 -32,-15 -56,-65 -13,-32" fill="#c9a84c"/>
+      <circle cx="0" cy="0" r="50" fill="none" stroke="#c9a84c" stroke-width="2"/>
+      <circle cx="0" cy="0" r="44" fill="#0a0a0a"/>
+      <polygon points="0,-26 6,-10 22,-10 10,4 16,20 0,12 -16,20 -10,4 -22,-10 -6,-10" fill="#c9a84c"/>
+      <text y="-56" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani,sans-serif" font-size="7" font-weight="700" letter-spacing="5">LOS SANTOS SHERIFF</text>
+      <text y="64" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani,sans-serif" font-size="6" letter-spacing="4">SAN ANDREAS</text>
+    </g>
+  </svg>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-brand">
+    <!-- Logo LSSD SVG inline -->
+    <svg class="header-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(50,50)">
+        <polygon points="0,-46 6.5,-17 29,-33 16,-8 43,0 19,12 27,40 0,24 -27,40 -19,12 -43,0 -16,-8 -29,-33 -6.5,-17" fill="#c9a84c"/>
+        <circle cx="0" cy="0" r="26" fill="#0a0b0d" stroke="#c9a84c" stroke-width="1.5"/>
+        <circle cx="0" cy="0" r="22" fill="none" stroke="#7a6030" stroke-width="0.5"/>
+        <polygon points="0,-13 3,-5 11,-5 5,2 8,10 0,6 -8,10 -5,2 -11,-5 -3,-5" fill="#c9a84c"/>
+        <text y="-29" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani,sans-serif" font-size="5" font-weight="700" letter-spacing="3">LOS SANTOS</text>
+        <text y="37" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani,sans-serif" font-size="4.5" letter-spacing="2">SAN ANDREAS</text>
+      </g>
+    </svg>
+    <div class="brand-texts">
+      <div class="brand-top">Mountana FivePD</div>
+      <div class="brand-main">Los Santos Sheriff's Dept.</div>
+      <div class="brand-sub">Portail Sécurisé · LSSD</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="status-dot" id="header-status">
+      <div class="dot"></div>
+      <span>SYSTÈME EN LIGNE</span>
+    </div>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Changer de thème">
+      <span id="theme-icon">☀️</span>
+      <span id="theme-label">Clair</span>
+    </button>
+  </div>
+</header>
+
+<!-- MAIN -->
+<main class="main">
+
+  <!-- ── VIEW: AUTH ── -->
+  <div class="view active" id="view-auth">
+    <div class="auth-wrap">
+
+      <div class="auth-eyebrow">
+        <div class="seal">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="90" height="90">
+            <g transform="translate(50,50)">
+              <polygon points="0,-46 6.5,-17 29,-33 16,-8 43,0 19,12 27,40 0,24 -27,40 -19,12 -43,0 -16,-8 -29,-33 -6.5,-17" fill="#c9a84c"/>
+              <circle cx="0" cy="0" r="26" fill="#08090c" stroke="#c9a84c" stroke-width="1.5"/>
+              <circle cx="0" cy="0" r="22" fill="none" stroke="#7a6030" stroke-width="0.8"/>
+              <polygon points="0,-13 3,-5 11,-5 5,2 8,10 0,6 -8,10 -5,2 -11,-5 -3,-5" fill="#c9a84c"/>
+              <text y="-29" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani,sans-serif" font-size="5" font-weight="700" letter-spacing="3">LOS SANTOS</text>
+              <text y="15" text-anchor="middle" fill="#e8c96a" font-family="Rajdhani,sans-serif" font-size="5.5" font-weight="700" letter-spacing="1">SHERIFF</text>
+              <text y="37" text-anchor="middle" fill="#c9a84c" font-family="Rajdhani,sans-serif" font-size="4.5" letter-spacing="2">SAN ANDREAS</text>
+            </g>
+          </svg>
+        </div>
+        <h1>Authentification</h1>
+        <div class="sub">Accès Sécurisé — Personnel Autorisé Uniquement</div>
+      </div>
+
+      <div class="glass-card" id="auth-card">
+        <div class="corner-bl"></div>
+
+        <div id="auth-alert" class="alert"></div>
+
+        <div class="form-section-title">Identifiants d'accès</div>
+
+        <div class="form-group">
+          <label class="form-label">Identifiant</label>
+          <div class="input-icon-wrap">
+            <span class="input-icon">🪪</span>
+            <input type="text" class="form-input" id="inp-id" placeholder="Ex : D.Carter · J.Wolf" autocomplete="off"/>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Station</label>
+          <div class="select-wrap">
+            <select class="form-select" id="inp-station">
+              <option value="">— Sélectionner votre station —</option>
+              <option value="Davis">📍 Davis</option>
+              <option value="Mirror Park">📍 Mirror Park</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Grade</label>
+          <div class="select-wrap">
+            <select class="form-select" id="inp-grade">
+              <option value="">— Sélectionner votre grade —</option>
+              <option value="Sheriff">Sheriff</option>
+              <option value="Undersheriff">Undersheriff</option>
+              <option value="Assistant Sheriff">Assistant Sheriff</option>
+              <option value="Chief">Chief</option>
+              <option value="Commander">Commander</option>
+              <option value="Captain">Captain</option>
+              <option value="Lieutenant">Lieutenant</option>
+              <option value="Sergeant">Sergeant</option>
+              <option value="Deputy">Deputy</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Mot de Passe</label>
+          <div class="pass-wrap">
+            <input type="password" class="form-input" id="inp-pass" placeholder="••••••••••••" onkeydown="if(event.key==='Enter')login()"/>
+            <button class="pass-toggle" onclick="togglePass()" title="Afficher/Masquer">👁</button>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="login()" id="btn-login">
+          ⚡ Authentifier l'Accès
+        </button>
+
+        <div class="divider">ou</div>
+
+        <a href="https://discord.gg/8gwehkEaNZ" target="_blank" class="btn-discord">
+          <svg width="16" height="16" viewBox="0 0 127.14 96.36" fill="currentColor"><path d="M107.7,8.07A105.15,105.15,0,0,0,81.47,0a72.06,72.06,0,0,0-3.36,6.83A97.68,97.68,0,0,0,49,6.83,72.37,72.37,0,0,0,45.64,0,105.89,105.89,0,0,0,19.39,8.09C2.79,32.65-1.71,56.6.54,80.21h0A105.73,105.73,0,0,0,32.71,96.36,77.7,77.7,0,0,0,39.6,85.25a68.42,68.42,0,0,1-10.85-5.18c.91-.66,1.8-1.34,2.66-2a75.57,75.57,0,0,0,64.32,0c.87.71,1.76,1.39,2.66,2a68.68,68.68,0,0,1-10.87,5.19,77,77,0,0,0,6.89,11.1A105.25,105.25,0,0,0,126.6,80.22h0C129.24,52.84,122.09,29.11,107.7,8.07ZM42.45,65.69C36.18,65.69,31,60,31,53s5-12.74,11.43-12.74S54,46,53.89,53,48.84,65.69,42.45,65.69Zm42.24,0C78.41,65.69,73.25,60,73.25,53s5-12.74,11.44-12.74S96.23,46,96.12,53,91.08,65.69,84.69,65.69Z"/></svg>
+          Se connecter via Discord
+        </a>
+
+        <p style="text-align:center;margin-top:0.8rem;font-size:0.68rem;color:var(--muted);letter-spacing:0.05em">
+          OAuth2 Discord — Configuration en attente (variables ID/Token réservées)
+        </p>
+      </div>
+
+      <!-- CREDENTIALS INFO (collapsible) -->
+      <div style="margin-top:1rem;text-align:center">
+        <button class="btn-secondary" onclick="toggleCreds()" id="btn-creds">🔑 Voir les mots de passe (Admin)</button>
+      </div>
+      <div id="creds-panel" style="display:none;margin-top:1rem">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Codes d'accès par grade</div>
+            <span class="badge badge-red">CONFIDENTIEL</span>
+          </div>
+          <div class="creds-table" id="creds-list"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── VIEW: DASHBOARD ── -->
+  <div class="view" id="view-dash">
+    <div class="dashboard">
+
+      <div class="dash-header">
+        <div class="dash-welcome">
+          <div class="dash-welcome-tag">✅ Authentification réussie</div>
+          <div class="dash-welcome-name" id="dash-name">Agent —</div>
+          <div class="dash-welcome-info" id="dash-info">—</div>
+        </div>
+        <div class="dash-actions">
+          <span class="badge badge-gold" id="dash-access-badge">—</span>
+          <button class="btn-danger" onclick="logout()">⬅ Déconnexion</button>
+        </div>
+      </div>
+
+      <!-- TABS -->
+      <div class="dash-tabs">
+        <button class="dash-tab active" onclick="switchTab('ppap')">🔫 PPAP</button>
+        <button class="dash-tab" onclick="switchTab('profile')">👤 Profil</button>
+        <button class="dash-tab" id="tab-logs" onclick="switchTab('logs')" style="display:none">📋 Logs Admin</button>
+        <button class="dash-tab" id="tab-creds-dash" onclick="switchTab('creds')" style="display:none">🔑 Credentials</button>
+      </div>
+
+      <!-- TAB: PPAP -->
+      <div id="tab-ppap" class="tab-content">
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-card-label">PPAP Enregistrés</div>
+            <div class="stat-card-value" id="stat-total">0</div>
+            <div class="stat-card-sub">Total dans la base</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">PPAP Attribués</div>
+            <div class="stat-card-value" id="stat-attrib">0</div>
+            <div class="stat-card-sub">En service actif</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-label">Non Attribués</div>
+            <div class="stat-card-value" id="stat-nonattrib">0</div>
+            <div class="stat-card-sub">En stock</div>
+          </div>
+        </div>
+
+        <!-- ADD PPAP (semi+) -->
+        <div class="panel" id="ppap-form-panel">
+          <div class="panel-header">
+            <div class="panel-title">Enregistrer un PPAP</div>
+          </div>
+          <div id="ppap-alert" class="alert"></div>
+          <div class="ppap-grid">
+            <div class="form-group">
+              <label class="form-label">Matricule PPAP</label>
+              <input type="text" class="form-input" id="ppap-mat" placeholder="Ex : LSSD-430 297 815"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Type de PPAP</label>
+              <input type="text" class="form-input" id="ppap-type" placeholder="Ex : Pistol Mk II, Shotgun..."/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Prénom de l'Agent</label>
+              <input type="text" class="form-input" id="ppap-prenom" placeholder="Prénom"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nom de l'Agent</label>
+              <input type="text" class="form-input" id="ppap-nom" placeholder="Nom de famille"/>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Grade</label>
+              <div class="select-wrap">
+                <select class="form-select" id="ppap-grade">
+                  <option value="">— Grade —</option>
+                  <option>Sheriff</option><option>Undersheriff</option>
+                  <option>Assistant Sheriff</option><option>Chief</option>
+                  <option>Commander</option><option>Captain</option>
+                  <option>Lieutenant</option><option>Sergeant</option><option>Deputy</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Statut</label>
+              <div class="select-wrap">
+                <select class="form-select" id="ppap-statut">
+                  <option value="attribue">Attribué</option>
+                  <option value="non_attribue">Non Attribué</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group" style="grid-column:1/-1">
+              <label class="form-label">Notes</label>
+              <input type="text" class="form-input" id="ppap-notes" placeholder="Observations, numéro de série..."/>
+            </div>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:0.75rem;flex-wrap:wrap">
+            <button class="btn-primary" style="width:auto;padding:0.65rem 2rem" onclick="addPPAP()">Enregistrer le PPAP</button>
+            <button class="btn-secondary" onclick="resetPPAPForm()">Réinitialiser</button>
+          </div>
+        </div>
+
+        <!-- SEARCH + TABLE -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Registre des PPAP</div>
+            <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+              <select class="form-select" style="padding:0.4rem 0.7rem;font-size:0.8rem" id="filter-ppap-statut" onchange="renderPPAP()">
+                <option value="">Tous statuts</option>
+                <option value="attribue">Attribués</option>
+                <option value="non_attribue">Non Attribués</option>
+              </select>
+            </div>
+          </div>
+          <div class="search-bar">
+            <input type="text" class="search-input" id="ppap-search" placeholder="🔍 Rechercher par matricule, nom, type..." oninput="renderPPAP()"/>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Matricule PPAP</th>
+                  <th>Type</th>
+                  <th>Agent Attitré</th>
+                  <th>Grade</th>
+                  <th>Statut</th>
+                  <th>Notes</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="ppap-tbody">
+                <tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Aucun PPAP enregistré.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: PROFIL -->
+      <div id="tab-profile" class="tab-content" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Fiche Agent</div>
+            <span class="badge badge-blue">LSSD</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem">
+            <div>
+              <div style="font-size:0.68rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:0.3rem">Identifiant</div>
+              <div style="font-family:var(--font-h);font-size:1.2rem;color:var(--white)" id="prof-id">—</div>
+            </div>
+            <div>
+              <div style="font-size:0.68rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:0.3rem">Grade</div>
+              <div style="font-family:var(--font-h);font-size:1.2rem;color:var(--gold)" id="prof-grade">—</div>
+            </div>
+            <div>
+              <div style="font-size:0.68rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:0.3rem">Station</div>
+              <div style="font-family:var(--font-h);font-size:1.2rem;color:var(--white)" id="prof-station">—</div>
+            </div>
+            <div>
+              <div style="font-size:0.68rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:0.3rem">Niveau d'Accès</div>
+              <div id="prof-access">—</div>
+            </div>
+            <div>
+              <div style="font-size:0.68rem;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;margin-bottom:0.3rem">Connexion</div>
+              <div style="font-family:var(--font-m);font-size:0.8rem;color:var(--muted2)" id="prof-time">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: LOGS -->
+      <div id="tab-logs-content" class="tab-content" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Base de Données des Logs</div>
+            <div style="display:flex;gap:0.5rem">
+              <span class="badge badge-red">ACCÈS TOTAL</span>
+              <button class="btn-danger" onclick="clearLogs()">Effacer</button>
+            </div>
+          </div>
+          <div class="search-bar">
+            <input type="text" class="search-input" id="log-search" placeholder="🔍 Rechercher dans les logs..." oninput="renderLogs()"/>
+            <select class="form-select" style="padding:0.4rem 0.7rem;font-size:0.8rem" id="log-filter" onchange="renderLogs()">
+              <option value="">Tous</option>
+              <option value="success">Succès</option>
+              <option value="fail">Échecs</option>
+            </select>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Identifiant</th>
+                  <th>Date</th>
+                  <th>Heure</th>
+                  <th>Station</th>
+                  <th>Grade</th>
+                  <th>Statut</th>
+                  <th>IP (simulation)</th>
+                </tr>
+              </thead>
+              <tbody id="logs-tbody">
+                <tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted)">Aucun log enregistré.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB: CREDENTIALS -->
+      <div id="tab-creds-content" class="tab-content" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">Codes d'Accès par Grade</div>
+            <span class="badge badge-red">CONFIDENTIEL · TOTAL</span>
+          </div>
+          <div class="creds-table">
+            <div class="cred-row header">
+              <span>Grade</span>
+              <span>Mot de Passe</span>
+              <span>Accès</span>
+            </div>
+            <div id="creds-dash-list"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-brand">Mountana FivePD · Los Santos Sheriff's Department</div>
+  <div class="footer-legal">
+    © 2026 — Réalisé par <strong>IA & Amaury & Keylian</strong> (Owners Mountana.FivePD)<br/>
+    Propriété intellectuelle protégée — CPI Art. L.111-1 et suivants · Contenu fictif à usage RP uniquement<br/>
+    <span style="color:var(--purple);font-size:0.65rem">✦ Site conçu avec l'assistance de l'intelligence artificielle</span>
+  </div>
+</footer>
+
+<script>
+// ════════════════════════════════════════════
+// MOUNTANA FIVEPD — LSSD AUTH SYSTEM
+// ════════════════════════════════════════════
+
+// ── CREDENTIALS PAR GRADE ──
+const CREDS = {
+  "Sheriff":           { pass: "Sh3r!ff#SA_2026$X9@Z",    access: "all",  label: "Accès Total" },
+  "Undersheriff":      { pass: "Un4d3R$h3R!ff@7Z#LSSD",   access: "all",  label: "Accès Total" },
+  "Assistant Sheriff": { pass: "4$$!st4nT#Sh3R1ff&K2$26",  access: "all",  label: "Accès Total" },
+  "Chief":             { pass: "Ch!3f#LSSD_S@nAndr3@$5",   access: "all",  label: "Accès Total" },
+  "Commander":         { pass: "C0mm@nd3R!#X9_LSSD&2026",  access: "all",  label: "Accès Total" },
+  "Captain":           { pass: "C4pt4!n#LSSD&S@_2026!Xk",  access: "all",  label: "Accès Total" },
+  "Lieutenant":        { pass: "L!3ut3n4nt#LSSD_$8&SA",    access: "semi", label: "Accès Semi" },
+  "Sergeant":          { pass: "S3rg3@nt!#LSSD&2026$Kz",   access: "semi", label: "Accès Semi" },
+  "Deputy":            { pass: "D3puTy!#LSSD_S@n@ndr3@$",  access: "read", label: "Lecture Seule" }
+};
+
+// ── STATE ──
+let session = null;
+let ppapList = JSON.parse(localStorage.getItem("lssd_ppap") || "[]");
+let logsList = JSON.parse(localStorage.getItem("lssd_logs") || "[]");
+
+// ── FAKE IPs ──
+const FAKE_IPS = ["10.0.0.","192.168.1.","172.16.0.","10.10.1."];
+function fakeIP(){ return FAKE_IPS[Math.floor(Math.random()*FAKE_IPS.length)] + Math.floor(Math.random()*254+1); }
+
+// ── DATETIME ──
+function now(){
+  const d = new Date();
+  return {
+    date: d.toLocaleDateString("fr-FR"),
+    time: d.toLocaleTimeString("fr-FR"),
+    ts:   d.toISOString()
+  };
+}
+
+// ── LOADER ──
+window.addEventListener("load", () => {
+  setTimeout(()=>{
+    document.getElementById("loader").classList.add("hide");
+    setTimeout(()=>document.getElementById("loader").remove(), 600);
+  }, 1400);
+  buildCredsList();
+  buildCredsDash();
+});
+
+// ── THEME ──
+let isDark = true;
+function toggleTheme(){
+  isDark = !isDark;
+  document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+  document.getElementById("theme-icon").textContent = isDark ? "☀️" : "🌙";
+  document.getElementById("theme-label").textContent = isDark ? "Clair" : "Sombre";
+}
+
+// ── PASS VISIBILITY ──
+function togglePass(){
+  const inp = document.getElementById("inp-pass");
+  inp.type = inp.type === "password" ? "text" : "password";
+}
+
+// ── CREDS PANEL (auth page) ──
+function toggleCreds(){
+  const p = document.getElementById("creds-panel");
+  p.style.display = p.style.display === "none" ? "block" : "none";
+}
+
+function buildCredsList(){
+  const el = document.getElementById("creds-list");
+  el.innerHTML = `<div class="cred-row header"><span>Grade</span><span>Mot de Passe</span><span>Accès</span></div>`;
+  Object.entries(CREDS).forEach(([grade, info]) => {
+    const div = document.createElement("div");
+    div.className = "cred-row";
+    div.innerHTML = `
+      <span style="font-family:var(--font-h);color:var(--white);font-weight:600">${grade}</span>
+      <span class="cred-pass">${info.pass}</span>
+      <span>${accessBadge(info.access)}</span>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function buildCredsDash(){
+  const el = document.getElementById("creds-dash-list");
+  if(!el) return;
+  el.innerHTML = "";
+  Object.entries(CREDS).forEach(([grade, info]) => {
+    const div = document.createElement("div");
+    div.className = "cred-row";
+    div.innerHTML = `
+      <span style="font-family:var(--font-h);color:var(--white);font-weight:600">${grade}</span>
+      <span class="cred-pass">${info.pass}</span>
+      <span>${accessBadge(info.access)}</span>
+    `;
+    el.appendChild(div);
+  });
+}
+
+function accessBadge(acc){
+  if(acc==="all")  return `<span class="badge badge-gold">Accès Total</span>`;
+  if(acc==="semi") return `<span class="badge badge-blue">Accès Semi</span>`;
+  return `<span class="badge badge-purple">Lecture</span>`;
+}
+
+// ── LOGIN ──
+function login(){
+  const id      = document.getElementById("inp-id").value.trim();
+  const station = document.getElementById("inp-station").value;
+  const grade   = document.getElementById("inp-grade").value;
+  const pass    = document.getElementById("inp-pass").value;
+  const alertEl = document.getElementById("auth-alert");
+
+  if(!id || !station || !grade || !pass){
+    showAlert(alertEl, "error", "Champs Incomplets", "Veuillez remplir tous les champs requis.");
+    shake(document.getElementById("auth-card"));
+    return;
+  }
+
+  const cred = CREDS[grade];
+  const dt = now();
+  const isOk = cred && pass === cred.pass;
+
+  // ENREGISTREMENT LOG
+  logsList.unshift({
+    id: logsList.length + 1,
+    identifiant: id,
+    date: dt.date,
+    time: dt.time,
+    station,
+    grade,
+    status: isOk ? "success" : "fail",
+    ip: fakeIP()
+  });
+  saveLogs();
+
+  if(!isOk){
+    showAlert(alertEl, "error", "⛔ Accès Refusé — Tentative Enregistrée",
+      `Identifiant ou mot de passe incorrect. [${dt.time}] · IP: ${logsList[0].ip}`);
+    shake(document.getElementById("auth-card"));
+    return;
+  }
+
+  session = { id, station, grade, access: cred.access, label: cred.label, time: dt.time, date: dt.date };
+  showDashboard();
+}
+
+// ── DASHBOARD ──
+function showDashboard(){
+  document.getElementById("view-auth").classList.remove("active");
+  document.getElementById("view-dash").classList.add("active");
+
+  document.getElementById("dash-name").textContent = session.id;
+  document.getElementById("dash-info").textContent = `${session.grade} · Station ${session.station} · Connexion ${session.time}`;
+  document.getElementById("dash-access-badge").innerHTML = accessBadge(session.access).replace("badge-","badge-");
+  document.getElementById("dash-access-badge").outerHTML = accessBadge(session.access);
+
+  document.getElementById("prof-id").textContent = session.id;
+  document.getElementById("prof-grade").textContent = session.grade;
+  document.getElementById("prof-station").textContent = session.station;
+  document.getElementById("prof-access").innerHTML = accessBadge(session.access);
+  document.getElementById("prof-time").textContent = `${session.date} à ${session.time}`;
+
+  // Affichage selon accès
+  if(session.access === "read"){
+    document.getElementById("ppap-form-panel").style.display = "none";
+  }
+  if(session.access === "all"){
+    document.getElementById("tab-logs").style.display = "flex";
+    document.getElementById("tab-creds-dash").style.display = "flex";
+  }
+
+  renderPPAP();
+  renderLogs();
+  updateStats();
+  buildCredsDash();
+}
+
+// ── LOGOUT ──
+function logout(){
+  session = null;
+  document.getElementById("view-dash").classList.remove("active");
+  document.getElementById("view-auth").classList.add("active");
+  document.getElementById("inp-pass").value = "";
+  document.getElementById("dash-tabs").querySelectorAll(".dash-tab").forEach((t,i)=>{
+    t.classList.toggle("active", i===0);
+  });
+  switchTab("ppap");
+}
+
+// ── TABS ──
+const TABS = {
+  ppap:    "tab-ppap",
+  profile: "tab-profile",
+  logs:    "tab-logs-content",
+  creds:   "tab-creds-content"
+};
+
+function switchTab(key){
+  document.querySelectorAll(".tab-content").forEach(el => el.style.display = "none");
+  const target = document.getElementById(TABS[key]);
+  if(target) target.style.display = "block";
+  document.querySelectorAll(".dash-tab").forEach(btn => {
+    btn.classList.toggle("active", btn.textContent.toLowerCase().includes(key) ||
+      (key==="ppap" && btn.textContent.includes("PPAP")) ||
+      (key==="logs" && btn.textContent.includes("Log")) ||
+      (key==="profile" && btn.textContent.includes("Profil")) ||
+      (key==="creds" && btn.textContent.includes("Cred"))
+    );
+  });
+}
+
+// ── PPAP ──
+function savePPAP(){ localStorage.setItem("lssd_ppap", JSON.stringify(ppapList)) }
+
+function addPPAP(){
+  if(session?.access === "read"){ alert("⛔ Accès refusé."); return; }
+  const mat    = document.getElementById("ppap-mat").value.trim();
+  const type   = document.getElementById("ppap-type").value.trim();
+  const prenom = document.getElementById("ppap-prenom").value.trim();
+  const nom    = document.getElementById("ppap-nom").value.trim();
+  const grade  = document.getElementById("ppap-grade").value;
+  const statut = document.getElementById("ppap-statut").value;
+  const notes  = document.getElementById("ppap-notes").value.trim();
+  const al     = document.getElementById("ppap-alert");
+
+  if(!mat||!type||!prenom||!nom||!grade){
+    showAlert(al,"error","Champs manquants","Veuillez compléter tous les champs obligatoires.");
+    return;
+  }
+  if(ppapList.find(p=>p.mat===mat)){
+    showAlert(al,"error","Matricule existant",`Le PPAP ${mat} est déjà enregistré.`);
+    return;
+  }
+  ppapList.push({id:Date.now(),mat,type,prenom,nom,grade,statut,notes,date:now().date});
+  savePPAP();
+  resetPPAPForm();
+  renderPPAP();
+  updateStats();
+  showAlert(al,"success","PPAP Enregistré",`${mat} ajouté avec succès.`);
+}
+
+function resetPPAPForm(){
+  ["ppap-mat","ppap-type","ppap-prenom","ppap-nom","ppap-notes"].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.value = "";
+  });
+  document.getElementById("ppap-grade").value = "";
+  document.getElementById("ppap-statut").value = "attribue";
+}
+
+function togglePPAP(id){
+  if(session?.access === "read"){ alert("⛔ Accès refusé."); return; }
+  const idx = ppapList.findIndex(p=>p.id===id);
+  if(idx===-1) return;
+  ppapList[idx].statut = ppapList[idx].statut === "attribue" ? "non_attribue" : "attribue";
+  savePPAP(); renderPPAP(); updateStats();
+}
+
+function deletePPAP(id){
+  if(session?.access !== "all"){ alert("⛔ Suppression : Accès Total requis."); return; }
+  if(!confirm("Supprimer ce PPAP ? Action irréversible.")) return;
+  ppapList = ppapList.filter(p=>p.id!==id);
+  savePPAP(); renderPPAP(); updateStats();
+}
+
+function renderPPAP(){
+  const tbody = document.getElementById("ppap-tbody");
+  if(!tbody) return;
+  const q = (document.getElementById("ppap-search")?.value||"").toLowerCase();
+  const sf = document.getElementById("filter-ppap-statut")?.value||"";
+  const list = ppapList.filter(p=>{
+    const mq = !q || [p.mat,p.type,p.prenom,p.nom,p.grade,p.notes].join(" ").toLowerCase().includes(q);
+    const ms = !sf || p.statut === sf;
+    return mq && ms;
+  });
+  if(!list.length){
+    tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--muted)">Aucun PPAP trouvé.</td></tr>`;
+    return;
+  }
+  const canEdit = session?.access === "semi" || session?.access === "all";
+  const canDel  = session?.access === "all";
+  tbody.innerHTML = list.map(p=>`
+    <tr>
+      <td class="mono">${p.mat}</td>
+      <td style="color:var(--muted2)">${p.type}</td>
+      <td style="font-family:var(--font-h);font-weight:600">${p.prenom} ${p.nom.toUpperCase()}</td>
+      <td><span class="badge badge-blue">${p.grade}</span></td>
+      <td>${p.statut==="attribue"
+        ? `<span class="badge badge-green">✅ Attribué</span>`
+        : `<span class="badge badge-red">⬜ Non Attribué</span>`}</td>
+      <td style="color:var(--muted);font-size:0.78rem">${p.notes||"—"}</td>
+      <td style="display:flex;gap:0.3rem;flex-wrap:wrap">
+        ${canEdit?`<button class="btn-secondary" style="padding:.3rem .6rem;font-size:.72rem" onclick="togglePPAP(${p.id})">${p.statut==="attribue"?"Désattribuer":"Attribuer"}</button>`:""}
+        ${canDel?`<button class="btn-danger" style="padding:.3rem .6rem;font-size:.72rem" onclick="deletePPAP(${p.id})">Suppr.</button>`:""}
+        ${!canEdit&&!canDel?`<span style="color:var(--muted);font-size:.72rem">Lecture seule</span>`:""}
+      </td>
+    </tr>
+  `).join("");
+}
+
+function updateStats(){
+  const total = ppapList.length;
+  const att   = ppapList.filter(p=>p.statut==="attribue").length;
+  document.getElementById("stat-total").textContent = total;
+  document.getElementById("stat-attrib").textContent = att;
+  document.getElementById("stat-nonattrib").textContent = total - att;
+}
+
+// ── LOGS ──
+function saveLogs(){ localStorage.setItem("lssd_logs", JSON.stringify(logsList)) }
+
+function clearLogs(){
+  if(!confirm("Effacer tous les logs ?")) return;
+  logsList = []; saveLogs(); renderLogs();
+}
+
+function renderLogs(){
+  const tbody = document.getElementById("logs-tbody");
+  if(!tbody) return;
+  const q  = (document.getElementById("log-search")?.value||"").toLowerCase();
+  const sf = document.getElementById("log-filter")?.value||"";
+  const list = logsList.filter(l=>{
+    const mq = !q || [l.identifiant,l.date,l.time,l.station,l.grade,l.ip].join(" ").toLowerCase().includes(q);
+    const ms = !sf || l.status === sf;
+    return mq && ms;
+  });
+  if(!list.length){
+    tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:2rem;color:var(--muted)">Aucun log enregistré.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(l=>`
+    <tr class="${l.status==="fail"?"row-fail":""}">
+      <td class="mono" style="color:var(--muted)">#${l.id}</td>
+      <td style="font-family:var(--font-h);font-weight:600">${l.identifiant}</td>
+      <td style="color:var(--muted2)">${l.date}</td>
+      <td class="mono">${l.time}</td>
+      <td><span class="badge badge-muted">${l.station||"—"}</span></td>
+      <td><span class="badge badge-blue">${l.grade||"—"}</span></td>
+      <td>${l.status==="success"
+        ? `<span class="badge badge-green">✅ Succès</span>`
+        : `<span class="badge badge-red">⛔ Échec</span>`}</td>
+      <td class="mono" style="color:var(--muted);font-size:0.72rem">${l.ip}</td>
+    </tr>
+  `).join("");
+}
+
+// ── UI UTILS ──
+function showAlert(el, type, title, sub){
+  if(!el) return;
+  const icons = {error:"🚫",success:"✅",info:"ℹ️"};
+  el.className = `alert alert-${type} show`;
+  el.innerHTML = `<span class="alert-icon">${icons[type]||"ℹ️"}</span>
+    <div class="alert-content">
+      <div class="alert-title">${title}</div>
+      ${sub?`<div class="alert-sub">${sub}</div>`:""}
+    </div>`;
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>el.classList.remove("show"), 6000);
+}
+
+function shake(el){
+  el.classList.add("shake");
+  setTimeout(()=>el.classList.remove("shake"), 600);
+}
+
+// Init stats
+updateStats();
+</script>
+</body>
+</html>
